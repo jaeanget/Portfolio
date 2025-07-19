@@ -1,0 +1,62 @@
+#Import Excel#
+
+library(readxl)
+nfd <- read_excel("C:/Users/Medina Janneta El/Downloads/anjay.xlsx")
+View(nfd)
+
+
+nfd$LotFrontage<- as.numeric(nfd$LotFrontage)
+
+library(dplyr)
+nfd <- nfd %>% na.omit()
+
+str(nfd)
+
+library(dplyr)
+library(tidyr)
+#replace missing values in each numeric column with median value of column
+nfd <- nfd %>% mutate(across(where(is.numeric),~replace_na(.,median(.,na.rm=TRUE)))) 
+View(nfd)
+str(d)
+
+
+attach(nfd)
+lm.fit<-lm(SalePrice ~ LotFrontage + LotArea + GarageArea)
+summary(lm.fit)
+
+lm.fit2<-lm(SalePrice ~LotFrontage + LotArea + TotalSFFlr)
+summary(lm.fit2)
+
+lm.fit3<-lm(SalePrice~ LotFrontage +  TotalSFFlr +GarageArea)
+summary(lm.fit3)
+
+lm.fit4 <- lm(SalePrice ~ LotArea + GarageArea +  TotalSFFlr)
+summary(lm.fit4)
+
+library(ggplot2)
+library(corrplot)
+library(dplyr)
+
+nfd$LotFrontage<- as.numeric(nfd$LotFrontage)
+nfd <- nfd %>% na.omit()
+
+View(nfd)
+
+
+library(dplyr)
+library(tidyr)
+#replace missing values in each numeric column with median value of column
+nfd <- nfd %>% mutate(across(where(is.numeric),~replace_na(.,median(.,na.rm=TRUE)))) 
+
+
+
+str(nfd)
+
+pairs(nfd)
+nfd <- as.data.frame(nfd)
+
+str(nfd)
+
+cordata = cor(nfd[,1:5])
+
+corrplot(cordata, method='square', tl.cex = 0.3)
