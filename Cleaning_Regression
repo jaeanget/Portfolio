@@ -1,0 +1,108 @@
+#Import Excel#
+
+library("readxl")
+final_data <- read_excel("C:/Users/Medina Janneta El/Downloads/Ezza's Folder/PDS - D/Paper/Data and command/final_data.xlsx")
+View(final_data)
+
+str(final_data)
+
+#cleaning data#
+
+final_data$LotFrontage<- as.numeric(final_data$LotFrontage)
+final_data$MasVnrArea<- as.numeric(final_data$MasVnrArea)
+final_data$`Alley NA`<- as.numeric(final_data$`Alley NA`)
+final_data$BsmtQualNA<- as.numeric(final_data$BsmtQualNA)
+final_data$BsmtCondNA<- as.numeric(final_data$BsmtCondNA)
+final_data$KitchenAbvGr<- as.numeric(final_data$KitchenAbvGr)
+final_data$FunctionalTyp<- as.numeric(final_data$FunctionalTyp)
+final_data$FunctionalMin1<- as.numeric(final_data$FunctionalMin1)
+final_data$FunctionalMin2<- as.numeric(final_data$FunctionalMin2)
+final_data$FunctionalMod<- as.numeric(final_data$FunctionalMod)
+final_data$FunctionalMaj1<- as.numeric(final_data$FunctionalMaj1)
+final_data$FunctionalMaj2<- as.numeric(final_data$FunctionalMaj2)
+final_data$FunctionalSev<- as.numeric(final_data$FunctionalSev)
+final_data$FunctionalSal<- as.numeric(final_data$FunctionalSal)
+final_data$FireplaceNA<- as.numeric(final_data$FireplaceNA)
+final_data$GarageTypeNA<- as.numeric(final_data$GarageTypeNA)
+final_data$GarageQualFaNA<- as.numeric(final_data$GarageQualFaNA)
+final_data$GarageCondNA<- as.numeric(final_data$GarageCondNA)
+final_data$PoolQCNA<- as.numeric(final_data$PoolQCNA)
+final_data$FenceNA<- as.numeric(final_data$FenceNA)
+final_data$MiscFeatureNA<- as.numeric(final_data$MiscFeatureNA)
+final_data$SaleConditionAbnorml<- as.numeric(final_data$SaleConditionAbnorml)
+final_data$SaleConditionAdjLand<- as.numeric(final_data$SaleConditionAdjLand)
+final_data$SaleConditionAlloca<- as.numeric(final_data$SaleConditionAlloca)
+
+str(final_data)
+
+if(!require("dplyr")) install.packages("dplyr")
+
+library("dplyr")
+
+View(nfd)
+
+if(!require("tidyr")) install.packages("tidyr")
+library("tidyr")
+#replace missing values in each numeric column with median value of column
+nfd <- final_data %>% mutate(across(where(is.numeric),~replace_na(.,median(.,na.rm=TRUE)))) 
+nfd <- nfd %>% na.omit()
+
+table(nfd$SalePriceLog)
+
+str(nfd$SalePriceLog)
+nfd$SalePriceLog<- as.factor(nfd$SalePriceLog)
+str(nfd$SalePriceLog)
+str(nfd$PavedDriveN)
+
+
+names (nfd)
+dim(nfd)
+summary(nfd)
+pairs(nfd)
+pairs(nfd$PavedDriveN)
+
+cor(nfd[, -9])
+
+glm.fits <- glm(
+  SalePriceLog ~ .,
+  data = nfd, family = binomial
+)
+
+summary(glm.fits)
+
+#want to see corelation
+cor(nfd)
+nfd$SalePriceLog<- as.numeric(nfd$SalePriceLog)
+cor(nfd)
+
+nfd$street
+
+#Nyobain regresi#
+
+glm.fits <- glm( # nolint
+  SalePriceLog ~ MSZoningA + `MSZoning I` + MSZoningC + MSZoningFV +
+   `MSZoning RH` + `MSZoning RL` + `MSZoning RP` + `MSZoning RM` + LotArea + # nolint # nolint: indentation_linter.
+    SaleTypeWD + SaleTypeCWD + SaleTypeVWD + SaleTypeNew + SaleTypeCOD +
+    SaleTypeConLw + SaleTypeCon + SaleTypeConLI + SaleTypeConLD,
+  data = nfd, family = binomial
+)
+
+summary(glm.fits)
+
+glm.fits <- glm(
+  SalePriceLog ~ LotFrontage + GarageArea + PavedDriveN + PavedDriveP + PavedDriveY,
+  data = nfd, family = binomial
+)
+
+
+summary(glm.fits)
+
+str(nfd$PavedDriveY)
+
+if(!require("car")) install.packages("car")
+library("car")
+vif(glm.fits)
+
+logLik_model <- logLik(glm.fits)
+View(logLik_model)
+logLik_null <- logLik(glm.fits(y ~ 1, family = binomial, data = nfd))
